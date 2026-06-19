@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>YTG Retail — Sales Performance Report</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#0E1F23;
+    --paper:#F6F3EC;
+    --teal:#0F4C49;
+    --teal-light:#1B6E68;
+    --gold:#C8932A;
+    --gold-soft:#E9C98A;
+    --line:#D8D2C2;
+    --good:#2F7D5C;
+    --muted:#6B6357;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Georgia','Iowan Old Style',serif;
+  }
+  .util{font-family:'Helvetica Neue',Arial,sans-serif;}
+
+  header{
+    background:var(--teal);
+    color:var(--paper);
+    padding:56px 60px 44px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    right:-60px; top:-60px;
+    width:280px; height:280px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(200,147,42,0.35), transparent 70%);
+  }
+  .eyebrow{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--gold-soft);
+    margin-bottom:14px;
+  }
+  h1{
+    font-size:44px;
+    margin:0 0 8px;
+    font-weight:400;
+    letter-spacing:.01em;
+  }
+  .sub{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:15px;
+    color:#CFE0DC;
+    max-width:560px;
+    line-height:1.5;
+  }
+  .meta-row{
+    margin-top:30px;
+    display:flex;
+    gap:40px;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;
+    color:var(--gold-soft);
+    letter-spacing:.04em;
+  }
+
+  main{padding:50px 60px 80px; max-width:1180px; margin:0 auto;}
+
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-top:-70px;
+    position:relative;
+    z-index:2;
+  }
+  .kpi{
+    background:var(--paper);
+    padding:28px 26px;
+  }
+  .kpi-label{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .kpi-value{
+    font-size:30px;
+    color:var(--teal);
+  }
+  .kpi-sub{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  section{margin-top:64px;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:24px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:14px;
+  }
+  .section-num{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12px;
+    color:var(--gold);
+    letter-spacing:.1em;
+  }
+  .section-head h2{
+    font-size:24px;
+    font-weight:400;
+    margin:0;
+    color:var(--teal);
+  }
+  .section-note{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;
+    color:var(--muted);
+    margin-left:auto;
+  }
+
+  .panel{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:26px;
+  }
+
+  .two-col{display:grid; grid-template-columns:1.3fr 1fr; gap:24px;}
+
+  table{width:100%; border-collapse:collapse; font-family:'Helvetica Neue',Arial,sans-serif;}
+  th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+    color:var(--muted);
+    padding:8px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  td{
+    padding:11px 10px;
+    font-size:14px;
+    border-bottom:1px solid #EFEAE0;
+  }
+  td.num{text-align:right; font-variant-numeric:tabular-nums; color:var(--teal); font-weight:600;}
+  tr:last-child td{border-bottom:none;}
+  .rank{
+    display:inline-flex;
+    align-items:center; justify-content:center;
+    width:20px;height:20px;
+    background:var(--teal);
+    color:var(--gold-soft);
+    font-size:11px;
+    border-radius:50%;
+  }
+
+  .pipeline{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+  }
+  .pipe-card{
+    border:1px solid var(--line);
+    background:#fff;
+    padding:18px;
+  }
+  .pipe-card h3{
+    margin:0 0 10px;
+    font-size:13px;
+    color:var(--teal);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .pipe-card ul{margin:0; padding-left:16px; font-size:12.5px; color:var(--ink); line-height:1.85;}
+  .pipe-card li span{color:var(--gold); font-weight:700;}
+  .arrow{
+    align-self:center;
+    text-align:center;
+    color:var(--gold);
+    font-size:20px;
+  }
+
+  footer{
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    text-align:center;
+    font-size:11.5px;
+    color:var(--muted);
+    padding:30px;
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width:900px){
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+    .two-col{grid-template-columns:1fr;}
+    .pipeline{grid-template-columns:repeat(2,1fr);}
+    header,main{padding-left:24px; padding-right:24px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow util">YTG Retail Company · Internal Report</div>
+  <h1>Customer Orders &amp; Sales Performance</h1>
+  <p class="sub">Four years of order data — cleaned, merged, and analyzed — covering revenue, customer spending, product performance, and seasonal demand across Nigeria.</p>
+  <div class="meta-row">
+    <span>PIPELINE RUN · 18 JUN 2026</span>
+    <span>PERIOD · JAN 2021 – DEC 2024</span>
+    <span>SOURCE · sales_summary (10,611 records)</span>
+  </div>
+</header>
+
+<main>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label util">Total Revenue</div>
+      <div class="kpi-value util">₦11.36B</div>
+      <div class="kpi-sub util">across 10,611 valid orders</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label util">Average Order Value</div>
+      <div class="kpi-value util">₦1,070,896</div>
+      <div class="kpi-sub util">per order, after cleaning</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label util">Active Customers</div>
+      <div class="kpi-value util">6,781</div>
+      <div class="kpi-sub util">across 20 Nigerian cities</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label util">Data Quality</div>
+      <div class="kpi-value util">96.5%</div>
+      <div class="kpi-sub util">10,611 of 10,997 unique orders kept</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <span class="section-num util">01</span>
+      <h2>Revenue by Category</h2>
+      <span class="section-note">Electronics dominates at 74% of total revenue</span>
+    </div>
+    <div class="panel">
+      <canvas id="catChart" height="110"></canvas>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="section-num util">02</span>
+      <h2>Monthly Sales Trend</h2>
+      <span class="section-note">Jan 2021 – Dec 2024, by order month</span>
+    </div>
+    <div class="panel">
+      <canvas id="monthChart" height="95"></canvas>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="section-num util">03</span>
+      <h2>Top Performers</h2>
+      <span class="section-note">By total spend / units sold</span>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <table>
+          <thead><tr><th></th><th>Customer</th><th style="text-align:right">Total Spend</th></tr></thead>
+          <tbody id="custTable"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <table>
+          <thead><tr><th></th><th>Product</th><th style="text-align:right">Units</th></tr></thead>
+          <tbody id="prodTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="section-num util">04</span>
+      <h2>How the Numbers Were Built</h2>
+      <span class="section-note">Extract → Transform → Load → Report</span>
+    </div>
+    <div class="pipeline">
+      <div class="pipe-card">
+        <h3>Extract</h3>
+        <ul>
+          <li>Customers: <span>11,000</span> rows</li>
+          <li>Products: <span>11,000</span> rows</li>
+          <li>Orders: <span>10,900</span> rows</li>
+        </ul>
+      </div>
+      <div class="pipe-card">
+        <h3>Clean</h3>
+        <ul>
+          <li>262 duplicate customers removed</li>
+          <li>244 duplicate products removed</li>
+          <li>100 duplicate / 75 invalid orders removed</li>
+        </ul>
+      </div>
+      <div class="pipe-card">
+        <h3>Merge</h3>
+        <ul>
+          <li>Inner-joined on customer + product ID</li>
+          <li>114 orphan orders dropped</li>
+          <li><span>10,611</span> rows survive</li>
+        </ul>
+      </div>
+      <div class="pipe-card">
+        <h3>Load &amp; Report</h3>
+        <ul>
+          <li>Saved to <span>retail_sales.db</span></li>
+          <li>Table: <span>sales_summary</span></li>
+          <li>13 enriched columns, 6 insights</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>YTG Retail — Customer Orders ETL Pipeline · Generated from retail_sales.db, table sales_summary</footer>
+
+<script>
+const ink = '#0E1F23', teal='#0F4C49', tealLight='#1B6E68', gold='#C8932A';
+
+const catData = [
+  ["Electronics", 8449732982.84],
+  ["Footwear", 743462438.71],
+  ["Kitchen", 441992178.19],
+  ["Apparel", 410234842.26],
+  ["Fashion", 332086700.33],
+  ["Health", 278824643.73],
+  ["Beauty", 275003368.36],
+  ["Furniture", 196629752.50],
+  ["Sports", 157528773.00],
+  ["Food & Beverage", 55033323.11],
+  ["Accessories", 22745870.00]
+];
+
+new Chart(document.getElementById('catChart'), {
+  type: 'bar',
+  data: {
+    labels: catData.map(d=>d[0]),
+    datasets: [{
+      data: catData.map(d=>d[1]/1e6),
+      backgroundColor: catData.map((d,i)=> i===0 ? gold : teal),
+      borderRadius: 2,
+      barThickness: 26
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend:{display:false}, tooltip:{ callbacks:{ label: c => '₦' + c.raw.toLocaleString(undefined,{maximumFractionDigits:1}) + 'M' } } },
+    scales: {
+      x: { ticks:{ callback:v=>'₦'+v+'M', font:{family:'Helvetica Neue'} }, grid:{color:'#EFEAE0'} },
+      y: { grid:{display:false}, ticks:{font:{family:'Helvetica Neue', size:12}} }
+    }
+  }
+});
+
+const monthly = {"2021-01":281944230.53,"2021-02":164873222.92,"2021-03":301867018.93,"2021-04":295468435.16,"2021-05":304116606.43,"2021-06":336991598.97,"2021-07":175328312.28,"2021-08":264391709.2,"2021-09":272223996.82,"2021-10":266003093.2,"2021-11":153389129.22,"2021-12":208566730.42,"2022-01":213495247.76,"2022-02":170273184.54,"2022-03":246957630.4,"2022-04":249540617.24,"2022-05":165414593.97,"2022-06":270413087.16,"2022-07":209398918.89,"2022-08":312414206.18,"2022-09":207483600.65,"2022-10":296441777.82,"2022-11":270888990.21,"2022-12":181159695.46,"2023-01":281741696.07,"2023-02":164557602.88,"2023-03":311186560.72,"2023-04":176672881.41,"2023-05":281606101.69,"2023-06":260344956.25,"2023-07":248150991.11,"2023-08":172778793.66,"2023-09":262536901.64,"2023-10":270831796.77,"2023-11":230078382.79,"2023-12":280952175.24,"2024-01":296271001.22,"2024-02":182562101.87,"2024-03":238284187.91,"2024-04":247128962.57,"2024-05":219672303.03,"2024-06":254872457.53,"2024-07":181990222.09,"2024-08":216294933.34,"2024-09":173393593.12,"2024-10":169472716.35,"2024-11":238314271.81,"2024-12":184533647.6};
+
+const months = Object.keys(monthly);
+const vals = Object.values(monthly).map(v=>v/1e6);
+
+new Chart(document.getElementById('monthChart'), {
+  type:'line',
+  data:{
+    labels: months,
+    datasets:[{
+      data: vals,
+      borderColor: teal,
+      backgroundColor: 'rgba(15,76,73,0.08)',
+      fill:true,
+      tension:0.3,
+      pointRadius:0,
+      borderWidth:2
+    }]
+  },
+  options:{
+    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: c => '₦'+c.raw.toFixed(1)+'M' } } },
+    scales:{
+      x:{ ticks:{ maxTicksLimit:12, font:{family:'Helvetica Neue', size:10} }, grid:{display:false} },
+      y:{ ticks:{ callback:v=>'₦'+v+'M', font:{family:'Helvetica Neue'} }, grid:{color:'#EFEAE0'} }
+    }
+  }
+});
+
+const topCustomers = [
+  ["Dr. Christina Ramirez MD", 38637213.91],
+  ["John Murphy", 37437426.21],
+  ["Walter Palmer", 36923088.00],
+  ["Holly Young", 36821565.46],
+  ["Melissa Thomas", 36797053.62]
+];
+const custBody = document.getElementById('custTable');
+topCustomers.forEach((c,i)=>{
+  custBody.innerHTML += `<tr><td><span class="rank util">${i+1}</span></td><td>${c[0]}</td><td class="num">₦${c[1].toLocaleString(undefined,{maximumFractionDigits:0})}</td></tr>`;
+});
+
+const topProducts = [
+  ["Adidas Running Shorts", 87],
+  ["Pressure Cooker 5L", 80],
+  ["Wristwatch (Casio)", 78],
+  ["Smart Watch", 77],
+  ["Sunglasses (Ray-Ban)", 76]
+];
+const prodBody = document.getElementById('prodTable');
+topProducts.forEach((p,i)=>{
+  prodBody.innerHTML += `<tr><td><span class="rank util">${i+1}</span></td><td>${p[0]}</td><td class="num">${p[1]}</td></tr>`;
+});
+</script>
+
+</body>
+</html>
