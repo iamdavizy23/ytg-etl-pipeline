@@ -1,6 +1,6 @@
 # 🛒 YTG Retail — Customer Orders ETL Pipeline
 
-A full end-to-end **Extract, Transform, Load (ETL)** pipeline built in Python for YTG Retail Company's customer orders data. Raw data from three CSV source files is extracted, cleaned, merged, loaded into a SQLite database, and analysed to generate six key business insights.
+A full end-to-end **Extract, Transform, Load (ETL)** pipeline built in Python for YTG Retail Company's customer orders data. Raw data from three CSV source files(Products, Orders, Customers) is extracted, cleaned, merged, loaded into a SQLite database, and analysed to generate six key business insights.
 
 > **Data Engineering Capstone Project** — YTG Data Engineering Programme
 
