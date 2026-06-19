@@ -1,0 +1,223 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, sans-serif); }
+.page { padding: 1.5rem 1.25rem 2rem; max-width: 680px; }
+.header { border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+.logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.logo-dot { width: 28px; height: 28px; background: #2563EB; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 500; }
+.report-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.report-sub { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
+.section-label { font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 1.5rem 0 .6rem; }
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 0.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.kpi-value { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.kpi-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+.chart-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem 1.25rem; margin-bottom: 1rem; }
+.chart-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+.chart-desc { font-size: 12px; color: var(--color-text-secondary); margin-bottom: .75rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 12px; color: var(--color-text-secondary); }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pipeline-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: var(--color-text-secondary); }
+.pipe-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 12px; }
+.pipe-in { background: var(--color-background-info); color: var(--color-text-info); }
+.pipe-out { background: var(--color-background-success); color: var(--color-text-success); }
+.pipe-drop { background: var(--color-background-danger); color: var(--color-text-danger); }
+.top-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+.top-table th { font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--color-text-tertiary); padding: 4px 6px; text-align: left; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.top-table td { padding: 7px 6px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); }
+.top-table tr:last-child td { border-bottom: none; }
+.rank { color: var(--color-text-tertiary); font-size: 11px; }
+.footer { font-size: 11px; color: var(--color-text-tertiary); margin-top: 1.5rem; padding-top: .75rem; border-top: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; }
+</style>
+
+<div class="page">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-dot">YTG</div>
+      <span class="report-title">YTG Retail — ETL Pipeline Report</span>
+    </div>
+    <div class="report-sub">Run date: 18 Jun 2026 · Period: Jan 2021 – Dec 2024 · Prepared for stakeholder review</div>
+  </div>
+
+  <div class="section-label">Pipeline summary</div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Total revenue</div>
+      <div class="kpi-value">₦11.4B</div>
+      <div class="kpi-sub">Across 4 fiscal years</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Orders processed</div>
+      <div class="kpi-value">10,611</div>
+      <div class="kpi-sub">After cleaning & merge</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Avg order value</div>
+      <div class="kpi-value">₦1.07M</div>
+      <div class="kpi-sub">Per transaction</div>
+    </div>
+  </div>
+
+  <div class="section-label">Data pipeline flow</div>
+  <div class="chart-card">
+    <div class="chart-title">Extract → Transform → Load</div>
+    <div class="chart-desc">Row counts at each pipeline stage across all three source files</div>
+    <div style="position:relative;width:100%;height:180px"><canvas id="pipelineChart" role="img" aria-label="Bar chart showing raw vs clean row counts for customers, products, and orders">Raw: customers 11000, products 11000, orders 10900. Clean: 10738, 10756, 10725.</canvas></div>
+    <div class="legend" style="margin-top:10px">
+      <span class="legend-item"><span class="legend-swatch" style="background:#60a5fa"></span>Raw rows</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#34d399;"></span>Clean rows</span>
+    </div>
+    <div style="margin-top:8px">
+      <div class="pipeline-row"><span class="pipe-badge pipe-in">IN</span> 32,900 total raw rows loaded <span style="margin-left:auto;font-weight:500;color:var(--color-text-primary)">32,900</span></div>
+      <div class="pipeline-row"><span class="pipe-badge pipe-drop">DROPPED</span> Duplicates, nulls, invalid values <span style="margin-left:auto;font-weight:500;color:var(--color-text-primary)">−681</span></div>
+      <div class="pipeline-row"><span class="pipe-badge pipe-drop">DROPPED</span> Orphan orders (unknown ID) <span style="margin-left:auto;font-weight:500;color:var(--color-text-primary)">−114</span></div>
+      <div class="pipeline-row"><span class="pipe-badge pipe-out">LOADED</span> Final rows into sales_summary <span style="margin-left:auto;font-weight:500;color:var(--color-text-primary)">10,611</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-card" style="margin-bottom:0">
+      <div class="chart-title">Revenue by category</div>
+      <div class="chart-desc">Share of total ₦11.4B</div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="catChart" role="img" aria-label="Donut chart: Electronics 74%, Footwear 7%, Kitchen 4%, Apparel 4%, others 11%">Electronics 74%, Footwear 7%, Kitchen 4%, Apparel 4%, Fashion 3%, Health 2%, Beauty 2%, Furniture 2%, other 2%.</canvas></div>
+    </div>
+    <div class="chart-card" style="margin-bottom:0">
+      <div class="chart-title">Top 5 customers</div>
+      <div class="chart-desc">By total spend (₦M)</div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="custChart" role="img" aria-label="Horizontal bar: Dr. Christina Ramirez MD 38.6M, John Murphy 37.4M, Walter Palmer 36.9M, Holly Young 36.8M, Melissa Thomas 36.8M">Top 5 customers by spend in ₦M.</canvas></div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:1rem">Monthly revenue trend · 2021–2024</div>
+  <div class="chart-card">
+    <div class="chart-title">Monthly sales performance</div>
+    <div class="chart-desc">Revenue per month · ₦M · 48-month view</div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:#60a5fa"></span>2021</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#34d399;"></span>2022</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#a78bfa;"></span>2023</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#f59e0b;"></span>2024</span>
+    </div>
+    <div style="position:relative;width:100%;height:220px"><canvas id="trendChart" role="img" aria-label="Line chart showing monthly revenue from Jan 2021 to Dec 2024">Monthly revenue trend across 48 months.</canvas></div>
+  </div>
+
+  <div class="section-label">Best-selling products</div>
+  <div class="chart-card">
+    <div class="chart-title">Top 5 products by units sold</div>
+    <div class="chart-desc">Units sold and total revenue generated</div>
+    <table class="top-table">
+      <thead><tr><th>#</th><th>Product</th><th>Category</th><th style="text-align:right">Units</th><th style="text-align:right">Revenue</th></tr></thead>
+      <tbody>
+        <tr><td class="rank">1</td><td>Adidas Running Shorts</td><td>Apparel</td><td style="text-align:right">87</td><td style="text-align:right">₦1.49M</td></tr>
+        <tr><td class="rank">2</td><td>Pressure Cooker 5L</td><td>Kitchen</td><td style="text-align:right">80</td><td style="text-align:right">₦2.97M</td></tr>
+        <tr><td class="rank">3</td><td>Wristwatch (Casio)</td><td>Fashion</td><td style="text-align:right">78</td><td style="text-align:right">₦3.23M</td></tr>
+        <tr><td class="rank">4</td><td>Smart Watch</td><td>Electronics</td><td style="text-align:right">77</td><td style="text-align:right">₦6.05M</td></tr>
+        <tr><td class="rank">5</td><td>Sunglasses (Ray-Ban)</td><td>Fashion</td><td style="text-align:right">76</td><td style="text-align:right">₦4.23M</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <span>YTG Retail Co. · ETL Pipeline · retail_sales.db → sales_summary</span>
+    <span>Confidential · Internal use only</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+const gridColor = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+const textColor = dark ? '#a0a09a' : '#6b6b66';
+const font = { family: '"Anthropic Sans", sans-serif', size: 11 };
+
+new Chart(document.getElementById('pipelineChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Customers', 'Products', 'Orders'],
+    datasets: [
+      { label: 'Raw rows', data: [11000, 11000, 10900], backgroundColor: '#60a5fa', borderRadius: 4 },
+      { label: 'Clean rows', data: [10738, 10756, 10725], backgroundColor: '#34d399', borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font, callback: v => v.toLocaleString() }, grid: { color: gridColor }, min: 10400 }
+    }
+  }
+});
+
+new Chart(document.getElementById('catChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Electronics', 'Footwear', 'Kitchen', 'Apparel', 'Fashion', 'Other'],
+    datasets: [{
+      data: [8449.7, 743.5, 442.0, 410.2, 332.1, 985.8],
+      backgroundColor: ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#f43f5e','#94a3b8'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '62%',
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { color: textColor, font, boxWidth: 10, padding: 8 } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ₦${ctx.parsed.toFixed(0)}M` } }
+    }
+  }
+});
+
+new Chart(document.getElementById('custChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Dr. C. Ramirez MD', 'John Murphy', 'Walter Palmer', 'Holly Young', 'Melissa Thomas'],
+    datasets: [{
+      label: 'Spend (₦M)',
+      data: [38.6, 37.4, 36.9, 36.8, 36.8],
+      backgroundColor: ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#dbeafe'],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ₦${ctx.parsed.x.toFixed(1)}M` } } },
+    scales: {
+      x: { ticks: { color: textColor, font, callback: v => '₦'+v+'M' }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font } }
+    }
+  }
+});
+
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const data2021 = [281.9,164.9,301.9,295.5,304.1,337.0,175.3,264.4,272.2,266.0,153.4,208.6];
+const data2022 = [213.5,170.3,247.0,249.5,165.4,270.4,209.4,312.4,207.5,296.4,270.9,181.2];
+const data2023 = [281.7,164.6,311.2,176.7,281.6,260.3,248.2,172.8,262.5,270.8,230.1,281.0];
+const data2024 = [296.3,182.6,238.3,247.1,219.7,254.9,182.0,216.3,173.4,169.5,238.3,184.5];
+
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      { label: '2021', data: data2021, borderColor: '#60a5fa', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 2, tension: 0.3 },
+      { label: '2022', data: data2022, borderColor: '#34d399', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 2, tension: 0.3 },
+      { label: '2023', data: data2023, borderColor: '#a78bfa', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 2, tension: 0.3 },
+      { label: '2024', data: data2024, borderColor: '#f59e0b', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 2, tension: 0.3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ₦${ctx.parsed.y.toFixed(0)}M` } } },
+    scales: {
+      x: { ticks: { color: textColor, font }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font, callback: v => '₦'+v+'M' }, grid: { color: gridColor } }
+    }
+  }
+});
+</script>
